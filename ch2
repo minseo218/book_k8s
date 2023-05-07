@@ -1,0 +1,70 @@
+# before proceeding, You should installed Virtual Box and Vagrant
+
+# Check whether Vagrant was successfully installed
+minseo@minseoui-MacBookPro ~ % vagrant --version
+Vagrant 2.3.4 (2.2.9)
+
+# Go to the directory where Vagrant is installed
+# /opt/vagrant
+# /usr/local/bin/vagrant (is the executable file used for runing Vagrant, not a directory)
+minseo@minseoui-MacBookPro ~ % cd /opt/vagrant       
+
+# Generating default code for provisioning
+minseo@minseoui-MacBookPro vagrant % vagrant init
+The user that is running Vagrant doesn't have the proper permissions to write a Vagrantfile to the specified location. Please ensure that you call `vagrant init` in a location where the proper permissions are in place to create a Vagrantfile.
+
+minseo@minseoui-MacBookPro ~ % sudo vagrant init
+A `Vagrantfile` has been placed in this directory. You are now ready to `vagrant up` your first virtual environment! 
+Please read the comments in the Vagrantfile as well as documentation on`vagrantup.com` for more information on using Vagrant.
+
+# There is Vagrantfile!!
+minseo@minseoui-MacBookPro vagrant % ls
+Vagrantfile	        bin		    embedded         
+
+# Ready to work!
+# I used the Image from https://app.vagrantup.com/sysnet4admin/boxes/CentOS-k8s
+minseo@minseoui-MacBookPro vagrant % sudo vi Vagrantfile
+config.vm.box = "base"   ->  config.vm.box = "sysnet4admin/CentOS-k8s"
+
+minseo@minseoui-MacBookPro vagrant % sudo vagrant up    
+Bringing machine 'default' up with 'virtualbox' provider...
+==> default: Box 'sysnet4admin/CentOS-k8s' could not be found. Attempting to find and install...
+...
+    default: 22 (guest) => 2222 (host) (adapter 1)
+The adapter to attach a forwarded port to was not found. Please verify that the given adapter is setup on the machine as a NAT interface.
+
+Host port: 2222
+Guest port: 22
+Adapter: 1
+
+# resolve the error -> "The adapter to attach a forwarded port to was not found."
+minseo@minseoui-MacBookPro vagrant % sudo vi Vagrantfile
+#config.vm.network "forwarded_port", guest: 80, host: 8080  -> uncomment
+
+minseo@minseoui-MacBookPro vagrant % sudo vagrant up 
+...
+Vagrant cannot forward the specified ports on this VM, since they would collide with some other application that is already listening on these ports. The forwarded port to 8080 is already in use on the host machine.
+
+To fix this, modify your current project's Vagrantfile to use another port. Example, where '1234' would be replaced by a unique host port:
+
+  config.vm.network :forwarded_port, guest: 80, host: 1234
+
+Sometimes, Vagrant will attempt to auto-correct this for you. In this
+case, Vagrant was unable to. This is usually because the guest machine is in a state which doesn't allow modifying port forwarding. You could try 'vagrant reload' (equivalent of running a halt followed by an up) so vagrant can attempt to auto-correct this upon booting. Be warned that any unsaved work might be lost.
+
+# resolve the error -> "Vagrant cannot forward the specified ports on this VM"
+minseo@minseoui-MacBookPro vagrant % sudo vi Vagrantfile
+config.vm.network "forwarded_port", guest: 80, host: 8080  -> config.vm.network :forwarded_port, guest: 80, host: 1234
+
+. 
+.
+.
+
+# The image was problem .
+1. I tried using the latest version of VirtulBox with Vagrant, 
+but found that the image file provided in the book was not compatible with this version.
+While other images were available for download, the image file provided in the book was not.
+2. Upon searching the official Vagrant website, I was able to successfullt install the version of Vagrant provided in the book, but encountered issus trying to install the lastest version of VirtualBox.
+Specifically, VirtualBox wersion 6.1.12 would not install. Despite attempting various methods found online and consulting with support, I was unable to reslove the issue.
+As a result, I found that using the version of VirtualBox provided in the book and the latest version of Vagrant was not compatibale and prevented me from using "vagrant up"
+3. As I was about to give up, I discovered that the image file for Chapter 3 were availavle on Git. After downloading and installing the files, l was able to use the files without issuse, bypassing the need for Vagrant altogether."
